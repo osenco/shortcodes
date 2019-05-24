@@ -37,18 +37,11 @@ class Shortcode
 	* Container for storing shortcode tags and their hook to call for the shortcode
 	*
 	* @since 1.0
-	* @name $this->shortcode_tags
+	* @name self::$shortcode_tags
 	* @var array
-	* @global array $this->shortcode_tags
+	* @global array self::$shortcode_tags
 	*/
-	public $shortcode_tags = array();
-
-	function __construct($content = '')
-	{
-		if (!empty($content)) {
-			return $this->do($content);
-		}
-	}
+	public static $shortcode_tags = array();
 	
 	/**
 	* Add hook for shortcode tag.
@@ -93,14 +86,14 @@ class Shortcode
 	* </code>
 	*
 	* @since 1.0
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	*
 	* @param string $tag Shortcode tag to be searched in post content.
 	* @param callable $func Hook to run when shortcode is found.
 	*/
-	public function add($tag, $func) {
+	public static function add($tag, $func) {
 		if ( is_callable($func) ){
-			$this->shortcode_tags[$tag] = $func;
+			self::$shortcode_tags[$tag] = $func;
 		}
 	}
 
@@ -108,12 +101,12 @@ class Shortcode
 	* Removes hook for shortcode.
 	*
 	* @since 1.0
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	*
 	* @param string $tag shortcode tag to remove hook for.
 	*/
-	public function remove($tag) {
-		unset($this->shortcode_tags[$tag]);
+	public static function remove($tag) {
+		unset(self::$shortcode_tags[$tag]);
 	}
 
 	/**
@@ -124,10 +117,10 @@ class Shortcode
 	* for removing all shortcodes.
 	*
 	* @since 1.0
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	*/
-	public function remove_all() {
-		$this->shortcode_tags = array();
+	public static function remove_all() {
+		self::$shortcode_tags = array();
 	}
 
 	/**
@@ -138,18 +131,18 @@ class Shortcode
 	* the shortcode will still show up in the post or content.
 	*
 	* @since 1.0
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	* @uses get_regex() Gets the search pattern for searching shortcodes.
 	*
 	* @param string $content Content to search for shortcodes
 	* @return string Content with shortcodes filtered out.
 	*/
-	public function do($content) {
-		if (empty($this->shortcode_tags) || !is_array($this->shortcode_tags))
+	public static function do($content) {
+		if (empty(self::$shortcode_tags) || !is_array(self::$shortcode_tags))
 			return $content;
 
-		$pattern = get_regex();
-		return preg_replace_callback('/'.$pattern.'/s', 'do_tag', $content);
+		$pattern = self::get_regex();
+		return preg_replace_callback('/'.$pattern.'/s', [new self, 'do_tag'], $content);
 	}
 
 	/**
@@ -167,13 +160,13 @@ class Shortcode
 	* 5 - The content of a shortcode when it wraps some content.
 	*
 	* @since 1.0
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	*
 	* @return string The shortcode search regular expression
 	*/
-	public function get_regex() {
-		$tagnames = array_keys($this->shortcode_tags);
-		$tagregexp = join( '|', array_map('preg_quote', $tagnames) );
+	public static function get_regex() {
+		$tagnames = \array_keys(self::$shortcode_tags);
+		$tagregexp = \join( '|', array_map('preg_quote', $tagnames) );
 
 		// WARNING! Do not change this regex without changing do_tag() and strip()
 		return '(.?)\[('.$tagregexp.')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
@@ -185,26 +178,26 @@ class Shortcode
 	*
 	* @since 1.0
 	* @access private
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	*
 	* @param array $m Regular expression match array
 	* @return mixed False on failure.
 	*/
-	public function do_tag( $m ) {
+	public static function do_tag( $m ) {
 		// allow [[foo]] syntax for escaping a tag
 		if ( $m[1] == '[' && $m[6] == ']' ) {
 			return substr($m[0], 1, -1);
 		}
 
 		$tag = $m[2];
-		$attr = parse_attrs( $m[3] );
+		$attr = self::parse_attrs( $m[3] );
 
 		if ( isset( $m[5] ) ) {
 			// enclosing tag - extra parameter
-			return $m[1] . call_user_func( $this->shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
+			return $m[1] . call_user_func( self::$shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
 		} else {
 			// self-closing tag
-			return $m[1] . call_user_func( $this->shortcode_tags[$tag], $attr, NULL,  $tag ) . $m[6];
+			return $m[1] . call_user_func( self::$shortcode_tags[$tag], $attr, NULL,  $tag ) . $m[6];
 		}
 	}
 
@@ -220,7 +213,7 @@ class Shortcode
 	* @param string $text
 	* @return array List of attributes and their value.
 	*/
-	public function parse_attrs($text) {
+	public static function parse_attrs($text) {
 		$attrs = array();
 		$pattern = '/(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/';
 		$text = preg_replace("/[\x{00a0}\x{200b}]+/u", " ", $text);
@@ -259,7 +252,7 @@ class Shortcode
 	* @param array $attrs User defined attributes in shortcode tag.
 	* @return array Combined and filtered attribute list.
 	*/
-	public function attrs($pairs, $attrs) {
+	public static function attrs($pairs, $attrs) {
 		$attrs = (array)$attrs;
 		$out = array();
 		foreach($pairs as $name => $default) {
@@ -276,13 +269,13 @@ class Shortcode
 	* Remove all shortcode tags from the given content.
 	*
 	* @since 1.0
-	* @uses $this->shortcode_tags
+	* @uses self::$shortcode_tags
 	*
 	* @param string $content Content to remove shortcode tags.
 	* @return string Content without shortcode tags.
 	*/
-	public function strip( $content ) {
-		if (empty($this->shortcode_tags) || !is_array($this->shortcode_tags)){
+	public static function strip( $content ) {
+		if (empty(self::$shortcode_tags) || !is_array(self::$shortcode_tags)){
 			return $content;
 		}
 
