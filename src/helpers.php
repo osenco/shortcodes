@@ -1,8 +1,8 @@
 <?php
 
-if (!function_exists('shortcode')) {
-	function shortcode()
+if (!function_exists('shortcodes')) {
+	function shortcodes($content = '')
 	{
-		return new \Osen\Shortcode();
+		return new \Osen\Shortcode($content);
 	}
 }
