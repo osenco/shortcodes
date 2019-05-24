@@ -1,5 +1,10 @@
 # Laravel Shortcodes
 Wordpress-style shortcodes for Laravel
+## Installation
+### Via Composer
+Install this package via composer.
+
+`composer require osenco/shortcodes`
 
 ## Usage
 ### Register Shortcode
