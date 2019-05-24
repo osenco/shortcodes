@@ -12,7 +12,7 @@ To register a shortcode, use the helper function `shortcode()->add()` in the con
 
 Pass the shortcode tag as the first argument, and an anonymous function as the second argument, e.g
 
-`shortcode()->add('tag', function(){ return date('Y); });`
+`\shortcode()->add('tag', function(){ return date('Y); });`
 
 ### Use Shortcode
 Add a shortcode to your content, optionally adding arguments as follows:
