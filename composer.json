@@ -1,6 +1,7 @@
     {
         "name": "osenco/shortcodes",
         "description": "Wordpress-like shortcodes for Laravel",
+        "license": "MIT",
         "authors": [
             {
                 "name": "Osen Concepts",
