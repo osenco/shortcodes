@@ -41,7 +41,7 @@ class Shortcode
 	* @var array
 	* @global array $this->shortcode_tags
 	*/
-	public $this->shortcode_tags = array();
+	public $shortcode_tags = array();
 
 	function __construct($content = '')
 	{
