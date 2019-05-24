@@ -43,9 +43,11 @@ class Shortcode
 	*/
 	public $this->shortcode_tags = array();
 
-	function __construct($content)
+	function __construct($content = '')
 	{
-		return $this->do($content);
+		if (!empty($content)) {
+			return $this->do($content);
+		}
 	}
 	
 	/**
