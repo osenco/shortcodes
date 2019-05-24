@@ -41,8 +41,13 @@ class Shortcode
 	* @var array
 	* @global array $this->shortcode_tags
 	*/
-	public $shortcode_tags = array();
+	public $this->shortcode_tags = array();
 
+	function __construct($content)
+	{
+		return $this->do($content);
+	}
+	
 	/**
 	* Add hook for shortcode tag.
 	*
