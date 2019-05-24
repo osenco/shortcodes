@@ -1,4 +1,4 @@
-# shortcodes
+# Laravel Shortcodes
 Wordpress-style shortcodes for Laravel
 
 ## Usage
